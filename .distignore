@@ -4,6 +4,7 @@
 /.distignore
 /.idea
 /.vscode
+/.wordpress-org
 /build
 /dist
 /docs

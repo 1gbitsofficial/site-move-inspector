@@ -78,6 +78,13 @@ The bounded file scan stops after 100,000 filesystem entries or 60 seconds of cu
 
 On a single site, an authenticated administrator with `manage_options` can run it. On multisite, only a super administrator with network-management permission can run the network inspection.
 
+== Screenshots ==
+
+1. Set an optional destination profile and start a private, metadata-only migration preflight.
+2. See the overall migration-readiness result, severity totals, and actionable checks at a glance.
+3. Compare destination PHP, database, disk capacity, and multisite support with the source site.
+4. Review admin-only software inventory, then download a privacy-safe TXT or JSON report.
+
 == Changelog ==
 
 = 1.0.0 =
