@@ -1,7 +1,7 @@
 /vendor/
 /dist/
 /build/
-/.phpunit.result.cache
+.phpunit.result.cache
 /docs/SUBMISSION-CHECKLIST.md
 /.idea/
 /.vscode/

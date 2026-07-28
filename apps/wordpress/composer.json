@@ -1,0 +1,10 @@
+{
+  "name": "1gbits/site-move-inspector-wordpress",
+  "description": "Read-only WordPress hosting migration preflight.",
+  "type": "wordpress-plugin",
+  "license": "GPL-2.0-or-later",
+  "homepage": "https://github.com/1gbitsofficial/site-move-inspector",
+  "require": {
+    "php": ">=7.4"
+  }
+}

@@ -1,7 +1,7 @@
 {
   "name": "1gbits/site-move-inspector",
-  "description": "Read-only WordPress hosting migration preflight.",
-  "type": "wordpress-plugin",
+  "description": "Development tools for the cross-platform Site Move Inspector repository.",
+  "type": "project",
   "license": "GPL-2.0-or-later",
   "require": {
     "php": ">=7.4"
@@ -21,7 +21,10 @@
     "sort-packages": true
   },
   "scripts": {
-    "lint": "phpcs --standard=phpcs.xml.dist",
-    "test": "phpunit --configuration=phpunit.xml.dist"
+    "build:wordpress": "powershell -ExecutionPolicy Bypass -File scripts/build-wordpress-release.ps1",
+    "lint": "phpcs --standard=apps/wordpress/phpcs.xml.dist",
+    "lint:wordpress": "phpcs --standard=apps/wordpress/phpcs.xml.dist",
+    "test": "phpunit --configuration=apps/wordpress/phpunit.xml.dist",
+    "test:wordpress": "phpunit --configuration=apps/wordpress/phpunit.xml.dist"
   }
 }

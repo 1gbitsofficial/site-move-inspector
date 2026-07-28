@@ -5,21 +5,23 @@ param(
 $ErrorActionPreference = 'Stop'
 
 $slug = '1gbits-site-move-inspector'
-$projectRoot = [System.IO.Path]::GetFullPath((Split-Path -Parent $PSScriptRoot))
-$buildRoot = [System.IO.Path]::GetFullPath((Join-Path $projectRoot 'build\release'))
+$repoRoot = [System.IO.Path]::GetFullPath((Split-Path -Parent $PSScriptRoot))
+$appRoot = [System.IO.Path]::GetFullPath((Join-Path $repoRoot 'apps\wordpress'))
+$buildRoot = [System.IO.Path]::GetFullPath((Join-Path $repoRoot 'build\wordpress\release'))
 $stagePlugin = [System.IO.Path]::GetFullPath((Join-Path $buildRoot $slug))
-$distRoot = [System.IO.Path]::GetFullPath((Join-Path $projectRoot 'dist'))
+$distRoot = [System.IO.Path]::GetFullPath((Join-Path $repoRoot 'dist\wordpress'))
 $zipPath = [System.IO.Path]::GetFullPath((Join-Path $distRoot "$slug-$Version.zip"))
-$rootPrefix = $projectRoot.TrimEnd('\') + '\'
+$checksumPath = [System.IO.Path]::GetFullPath((Join-Path $distRoot "$slug-$Version.sha256.txt"))
+$rootPrefix = $repoRoot.TrimEnd('\') + '\'
 
-foreach ($target in @($buildRoot, $stagePlugin, $distRoot, $zipPath)) {
+foreach ($target in @($appRoot, $buildRoot, $stagePlugin, $distRoot, $zipPath, $checksumPath)) {
 	if (-not $target.StartsWith($rootPrefix, [System.StringComparison]::OrdinalIgnoreCase)) {
-		throw "Release target is outside the plugin project: $target"
+		throw "WordPress release path is outside the repository: $target"
 	}
 }
 
-$mainFile = Join-Path $projectRoot "$slug.php"
-$readmeFile = Join-Path $projectRoot 'readme.txt'
+$mainFile = Join-Path $appRoot "$slug.php"
+$readmeFile = Join-Path $appRoot 'readme.txt'
 
 if (-not (Test-Path -LiteralPath $mainFile -PathType Leaf)) {
 	throw "Missing plugin bootstrap: $mainFile"
@@ -49,22 +51,30 @@ $releaseItems = @(
 	'uninstall.php',
 	'readme.txt',
 	'README.md',
-	'LICENSE.txt',
 	'composer.json',
 	'assets',
 	'includes'
 )
 
 foreach ($item in $releaseItems) {
-	$source = Join-Path $projectRoot $item
+	$source = Join-Path $appRoot $item
 	if (-not (Test-Path -LiteralPath $source)) {
 		throw "Missing release item: $item"
 	}
 	Copy-Item -LiteralPath $source -Destination $stagePlugin -Recurse -Force
 }
 
+$licenseSource = Join-Path $repoRoot 'LICENSE.txt'
+if (-not (Test-Path -LiteralPath $licenseSource -PathType Leaf)) {
+	throw "Missing repository license: $licenseSource"
+}
+Copy-Item -LiteralPath $licenseSource -Destination (Join-Path $stagePlugin 'LICENSE.txt') -Force
+
 if (Test-Path -LiteralPath $zipPath) {
 	Remove-Item -LiteralPath $zipPath -Force
+}
+if (Test-Path -LiteralPath $checksumPath) {
+	Remove-Item -LiteralPath $checksumPath -Force
 }
 
 Add-Type -AssemblyName System.IO.Compression
@@ -112,10 +122,18 @@ finally {
 
 $archive = Get-Item -LiteralPath $zipPath
 $hash = Get-FileHash -LiteralPath $zipPath -Algorithm SHA256
+$hashText = "{0}  {1}`n" -f $hash.Hash.ToLowerInvariant(), $archive.Name
+[System.IO.File]::WriteAllText(
+	$checksumPath,
+	$hashText,
+	[System.Text.UTF8Encoding]::new($false)
+)
 
 [pscustomobject]@{
-	Version = $Version
-	Path = $archive.FullName
-	Bytes = $archive.Length
-	SHA256 = $hash.Hash.ToLowerInvariant()
+	Platform     = 'wordpress'
+	Version      = $Version
+	Path         = $archive.FullName
+	ChecksumPath = $checksumPath
+	Bytes        = $archive.Length
+	SHA256       = $hash.Hash.ToLowerInvariant()
 }
