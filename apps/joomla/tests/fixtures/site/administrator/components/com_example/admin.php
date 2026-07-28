@@ -1,0 +1,2 @@
+<?php
+// Fixture administrator component.
