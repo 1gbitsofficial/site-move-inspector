@@ -1,13 +1,46 @@
 # Joomla application
 
-This directory is reserved for the installable Joomla administrator component of 1Gbits Site Move Inspector.
+The Joomla application is an administrator-only component for Joomla 5.4 and 6.1. It runs a private, read-only migration preflight and creates redacted TXT and JSON reports.
 
-The Joomla application will follow the same product boundaries as the WordPress plugin:
+## What it checks
 
-- administrator-initiated, read-only inspection;
-- hosting and migration metadata only;
-- no backup, migration, content transfer, or telemetry;
-- privacy-safe TXT and JSON reports;
-- an optional destination-hosting comparison.
+- Joomla, PHP, database, web-server, and PHP-extension metadata;
+- installed extension and template aggregates without reading parameters;
+- HTTPS, debug mode, temporary/log path layout, and scheduled-task counts;
+- bounded, resumable filesystem metadata within `JPATH_ROOT`;
+- aggregate database size and storage-engine information where permitted;
+- source disk capacity and an optional destination PHP/database/disk profile.
 
-It will have its own manifest, language files, tests, release ZIP, update feed, and `joomla-vX.Y.Z` release series. No package from this directory should be submitted to the Joomla Extensions Directory until it is complete and installable.
+The component does not create backups, migrate data, read file contents, inspect Joomla content or user records, change configuration, or contact 1Gbits.
+
+## Compatibility
+
+- Joomla 5.4 with PHP 8.1 or newer;
+- Joomla 6.1 with PHP 8.3 or newer;
+- MySQL/MariaDB and PostgreSQL component-owned job schemas;
+- one installable ZIP for both supported Joomla generations.
+
+## Development
+
+From the repository root:
+
+```powershell
+composer test:joomla
+composer lint:joomla
+composer build:joomla
+```
+
+The release builder creates:
+
+```text
+dist/joomla/com_sitemoveinspector-1.0.0.zip
+dist/joomla/com_sitemoveinspector-1.0.0.sha256.txt
+```
+
+The manifest is at `component/com_sitemoveinspector.xml`. The update feed is maintained separately under `updates/`, so development files and tests are never included in the installable ZIP. Package validation ties the feed version, supported Joomla branches, download URL, and SHA-256 digest to the release artifact.
+
+## Release policy
+
+Joomla tags use `joomla-vX.Y.Z`. A release ZIP must pass source and archive validation, unit tests, fresh install, scan/export, upgrade, and uninstall tests on both supported Joomla generations before it is submitted to the Joomla Extensions Directory.
+
+See [PRODUCT-SPEC.md](docs/PRODUCT-SPEC.md) for the security, privacy, and lifecycle contract.

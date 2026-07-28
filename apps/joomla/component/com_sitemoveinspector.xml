@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extension type="component" method="upgrade">
+	<name>COM_SITEMOVEINSPECTOR</name>
+	<element>com_sitemoveinspector</element>
+	<creationDate>July 2026</creationDate>
+	<author>1Gbits</author>
+	<authorUrl>https://1gbits.com/</authorUrl>
+	<copyright>(C) 2026 1Gbits. All rights reserved.</copyright>
+	<license>GNU General Public License version 2 or later</license>
+	<version>1.0.0</version>
+	<description>COM_SITEMOVEINSPECTOR_XML_DESCRIPTION</description>
+
+	<namespace path="src">OneGbits\Component\SiteMoveInspector</namespace>
+	<scriptfile>script.php</scriptfile>
+
+	<administration>
+		<menu view="inspector" img="class:server">COM_SITEMOVEINSPECTOR_MENU</menu>
+		<files folder="administrator/components/com_sitemoveinspector">
+			<folder>services</folder>
+			<folder>src</folder>
+			<folder>tmpl</folder>
+			<folder>sql</folder>
+			<filename>access.xml</filename>
+			<filename>config.xml</filename>
+		</files>
+		<languages folder="administrator/components/com_sitemoveinspector/language">
+			<language tag="en-GB">en-GB/com_sitemoveinspector.ini</language>
+			<language tag="en-GB">en-GB/com_sitemoveinspector.sys.ini</language>
+			<language tag="fa-IR">fa-IR/com_sitemoveinspector.ini</language>
+			<language tag="fa-IR">fa-IR/com_sitemoveinspector.sys.ini</language>
+		</languages>
+	</administration>
+
+	<media destination="com_sitemoveinspector" folder="media/com_sitemoveinspector">
+		<folder>css</folder>
+		<folder>js</folder>
+		<filename>joomla.asset.json</filename>
+	</media>
+
+	<install>
+		<sql>
+			<file driver="mysql" charset="utf8">sql/install.mysql.utf8.sql</file>
+			<file driver="postgresql" charset="utf8">sql/install.postgresql.utf8.sql</file>
+		</sql>
+	</install>
+
+	<uninstall>
+		<sql>
+			<file driver="mysql" charset="utf8">sql/uninstall.mysql.utf8.sql</file>
+			<file driver="postgresql" charset="utf8">sql/uninstall.postgresql.utf8.sql</file>
+		</sql>
+	</uninstall>
+
+	<update>
+		<schemas>
+			<schemapath type="mysql">sql/updates/mysql</schemapath>
+			<schemapath type="postgresql">sql/updates/postgresql</schemapath>
+		</schemas>
+	</update>
+
+	<updateservers>
+		<server
+			type="extension"
+			priority="1"
+			name="1Gbits Site Move Inspector"
+		>https://raw.githubusercontent.com/1gbitsofficial/site-move-inspector/main/apps/joomla/updates/site-move-inspector.xml</server>
+	</updateservers>
+
+	<changelogurl>https://raw.githubusercontent.com/1gbitsofficial/site-move-inspector/main/apps/joomla/updates/changelog.xml</changelogurl>
+</extension>

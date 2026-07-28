@@ -1,0 +1,1 @@
+-- Baseline schema version for 1Gbits Site Move Inspector 1.0.0.

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<changelogs>
+	<changelog>
+		<element>com_sitemoveinspector</element>
+		<type>component</type>
+		<version>1.0.0</version>
+		<addition>
+			<item>Read-only Joomla migration-preflight checks and optional destination comparison.</item>
+			<item>Bounded, resumable filesystem metadata scan with symlink and path protections.</item>
+			<item>Temporary per-user scan jobs for MySQL, MariaDB, and PostgreSQL.</item>
+			<item>Privacy-safe in-memory TXT and JSON reports.</item>
+			<item>Compatibility with Joomla 5.4 and Joomla 6.1.</item>
+		</addition>
+		<language>
+			<item>Complete English and Persian administrator language files.</item>
+		</language>
+	</changelog>
+</changelogs>

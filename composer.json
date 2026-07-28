@@ -21,10 +21,17 @@
     "sort-packages": true
   },
   "scripts": {
+    "build:joomla": "powershell -ExecutionPolicy Bypass -File scripts/build-joomla-release.ps1",
     "build:wordpress": "powershell -ExecutionPolicy Bypass -File scripts/build-wordpress-release.ps1",
     "lint": "phpcs --standard=apps/wordpress/phpcs.xml.dist",
+    "lint:joomla": "powershell -ExecutionPolicy Bypass -File scripts/test-joomla-package.ps1",
     "lint:wordpress": "phpcs --standard=apps/wordpress/phpcs.xml.dist",
     "test": "phpunit --configuration=apps/wordpress/phpunit.xml.dist",
+    "test:all": [
+      "@test:wordpress",
+      "@test:joomla"
+    ],
+    "test:joomla": "phpunit --configuration=apps/joomla/phpunit.xml.dist",
     "test:wordpress": "phpunit --configuration=apps/wordpress/phpunit.xml.dist"
   }
 }
