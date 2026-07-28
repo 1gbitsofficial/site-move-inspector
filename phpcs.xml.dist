@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<ruleset name="1Gbits Site Move Inspector">
+	<description>WordPress.org release coding standards.</description>
+
+	<file>1gbits-site-move-inspector.php</file>
+	<file>includes</file>
+	<file>uninstall.php</file>
+
+	<arg name="basepath" value="."/>
+	<arg name="colors"/>
+	<arg value="ps"/>
+	<arg name="extensions" value="php"/>
+
+	<config name="minimum_supported_wp_version" value="6.2"/>
+	<config name="testVersion" value="7.4-"/>
+
+	<rule ref="WordPress"/>
+	<rule ref="PHPCompatibilityWP"/>
+
+	<rule ref="WordPress.WP.I18n">
+		<properties>
+			<property name="text_domain" type="array">
+				<element value="1gbits-site-move-inspector"/>
+			</property>
+		</properties>
+	</rule>
+
+	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+		<properties>
+			<property name="prefixes" type="array">
+				<element value="OGSMI"/>
+				<element value="ogsmi"/>
+			</property>
+		</properties>
+	</rule>
+</ruleset>

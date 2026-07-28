@@ -1,0 +1,17 @@
+/.git
+/.github
+/.gitignore
+/.distignore
+/.idea
+/.vscode
+/build
+/dist
+/docs
+/tests
+/vendor
+/.phpunit.result.cache
+/composer.lock
+/phpcs.xml.dist
+/phpunit.xml.dist
+Thumbs.db
+.DS_Store

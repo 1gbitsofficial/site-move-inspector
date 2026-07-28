@@ -1,0 +1,9 @@
+/vendor/
+/dist/
+/build/
+/.phpunit.result.cache
+/docs/SUBMISSION-CHECKLIST.md
+/.idea/
+/.vscode/
+Thumbs.db
+.DS_Store

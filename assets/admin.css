@@ -1,0 +1,373 @@
+.ogsmi-wrap {
+	--ogsmi-border: #dcdcde;
+	--ogsmi-muted: #646970;
+	--ogsmi-pass: #008a20;
+	--ogsmi-warning: #996800;
+	--ogsmi-critical: #b32d2e;
+	--ogsmi-unknown: #50575e;
+	max-width: 1180px;
+}
+
+.ogsmi-wrap [hidden] {
+	display: none !important;
+}
+
+.ogsmi-heading,
+.ogsmi-report-header {
+	align-items: flex-start;
+	display: flex;
+	gap: 24px;
+	justify-content: space-between;
+}
+
+.ogsmi-heading .description {
+	font-size: 14px;
+	margin-block-start: 4px;
+}
+
+.ogsmi-brand {
+	background: #1d2327;
+	border-radius: 999px;
+	color: #fff;
+	font-size: 12px;
+	font-weight: 600;
+	margin-block-start: 12px;
+	padding: 7px 12px;
+	white-space: nowrap;
+}
+
+.ogsmi-privacy-notice {
+	margin-block: 18px;
+}
+
+.ogsmi-panel,
+.ogsmi-report,
+.ogsmi-empty {
+	background: #fff;
+	border: 1px solid var(--ogsmi-border);
+	border-radius: 6px;
+	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+	margin-block: 18px;
+	padding: 22px;
+}
+
+.ogsmi-panel > h2,
+.ogsmi-report h2 {
+	margin-block-start: 0;
+}
+
+.ogsmi-form-grid {
+	display: grid;
+	gap: 0 18px;
+	grid-template-columns: repeat(5, minmax(130px, 1fr));
+}
+
+.ogsmi-form-grid label {
+	display: block;
+	font-weight: 600;
+	margin-block-end: 6px;
+}
+
+.ogsmi-form-grid input,
+.ogsmi-form-grid select {
+	inline-size: 100%;
+}
+
+.ogsmi-self-test {
+	margin-block-start: 8px;
+}
+
+.ogsmi-progress {
+	border-block-start: 1px solid var(--ogsmi-border);
+	margin-block-start: 16px;
+	padding-block-start: 18px;
+}
+
+.ogsmi-progress-track {
+	background: #f0f0f1;
+	border-radius: 999px;
+	height: 8px;
+	overflow: hidden;
+	position: relative;
+}
+
+.ogsmi-progress-track span {
+	animation: ogsmi-progress 1.4s ease-in-out infinite;
+	background: #2271b1;
+	border-radius: inherit;
+	height: 100%;
+	inset-inline-start: 0;
+	position: absolute;
+	width: 35%;
+}
+
+@keyframes ogsmi-progress {
+	0% {
+		transform: translateX(-100%);
+	}
+	100% {
+		transform: translateX(385%);
+	}
+}
+
+[dir="rtl"] .ogsmi-progress-track span {
+	animation-direction: reverse;
+}
+
+#ogsmi-progress-message {
+	font-weight: 600;
+	margin-block-end: 2px;
+}
+
+#ogsmi-progress-detail {
+	margin-block-start: 0;
+}
+
+.ogsmi-overall {
+	border: 1px solid currentColor;
+	border-radius: 999px;
+	font-size: 13px;
+	font-weight: 700;
+	padding: 8px 12px;
+	white-space: nowrap;
+}
+
+.ogsmi-overall-high_risk {
+	background: #fcf0f1;
+	color: var(--ogsmi-critical);
+}
+
+.ogsmi-overall-review_recommended {
+	background: #fcf9e8;
+	color: var(--ogsmi-warning);
+}
+
+.ogsmi-overall-no_blockers {
+	background: #edfaef;
+	color: var(--ogsmi-pass);
+}
+
+.ogsmi-summary-grid {
+	display: grid;
+	gap: 12px;
+	grid-template-columns: repeat(4, minmax(120px, 1fr));
+	margin-block: 20px;
+}
+
+.ogsmi-summary-card {
+	border: 1px solid var(--ogsmi-border);
+	border-inline-start: 4px solid var(--ogsmi-unknown);
+	border-radius: 4px;
+	display: flex;
+	flex-direction: column;
+	padding: 14px;
+}
+
+.ogsmi-summary-card strong {
+	font-size: 24px;
+	line-height: 1;
+}
+
+.ogsmi-summary-card span {
+	color: var(--ogsmi-muted);
+	margin-block-start: 6px;
+}
+
+.ogsmi-summary-critical {
+	border-inline-start-color: var(--ogsmi-critical);
+}
+
+.ogsmi-summary-warning {
+	border-inline-start-color: var(--ogsmi-warning);
+}
+
+.ogsmi-summary-pass {
+	border-inline-start-color: var(--ogsmi-pass);
+}
+
+.ogsmi-guidance {
+	background: #f6f7f7;
+	border-inline-start: 4px solid #72aee6;
+	padding: 10px 12px;
+}
+
+.ogsmi-sections {
+	display: grid;
+	gap: 18px;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	margin-block: 22px;
+}
+
+.ogsmi-result-section {
+	border: 1px solid var(--ogsmi-border);
+	border-radius: 5px;
+	padding: 18px;
+}
+
+.ogsmi-result-section h3 {
+	margin-block-start: 0;
+}
+
+.ogsmi-check {
+	border-block-start: 1px solid #f0f0f1;
+	padding-block: 14px;
+}
+
+.ogsmi-check:first-child {
+	border-block-start: 0;
+	padding-block-start: 0;
+}
+
+.ogsmi-check:last-child {
+	padding-block-end: 0;
+}
+
+.ogsmi-check-heading {
+	align-items: baseline;
+	display: grid;
+	gap: 8px;
+	grid-template-columns: auto minmax(120px, 1fr) auto;
+}
+
+.ogsmi-status {
+	border: 1px solid currentColor;
+	border-radius: 999px;
+	color: var(--ogsmi-unknown);
+	font-size: 11px;
+	font-weight: 700;
+	padding: 2px 7px;
+	text-transform: uppercase;
+}
+
+.ogsmi-check-pass .ogsmi-status {
+	color: var(--ogsmi-pass);
+}
+
+.ogsmi-check-warning .ogsmi-status {
+	color: var(--ogsmi-warning);
+}
+
+.ogsmi-check-critical .ogsmi-status {
+	color: var(--ogsmi-critical);
+}
+
+.ogsmi-check-value {
+	color: var(--ogsmi-muted);
+	text-align: end;
+}
+
+.ogsmi-check p {
+	margin-block-end: 0;
+}
+
+.ogsmi-action {
+	color: #3c434a;
+}
+
+.ogsmi-inventory {
+	border-block-start: 1px solid var(--ogsmi-border);
+	margin-block-start: 24px;
+	padding-block-start: 20px;
+}
+
+.ogsmi-inventory details {
+	border: 1px solid var(--ogsmi-border);
+	border-radius: 4px;
+	margin-block: 10px;
+	padding: 0;
+}
+
+.ogsmi-inventory summary {
+	cursor: pointer;
+	font-weight: 600;
+	padding: 12px 14px;
+}
+
+.ogsmi-inventory details[open] summary {
+	border-block-end: 1px solid var(--ogsmi-border);
+}
+
+.ogsmi-inventory h4 {
+	margin-inline: 14px;
+}
+
+.ogsmi-table-wrap {
+	overflow-x: auto;
+	padding: 14px;
+}
+
+.ogsmi-table-wrap code {
+	white-space: nowrap;
+}
+
+.ogsmi-exports {
+	background: #f6f7f7;
+	border-radius: 4px;
+	margin-block-start: 22px;
+	padding: 18px;
+}
+
+.ogsmi-exports h3 {
+	margin-block-start: 0;
+}
+
+.ogsmi-export-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.ogsmi-empty {
+	color: var(--ogsmi-muted);
+	text-align: center;
+}
+
+.ogsmi-empty .dashicons {
+	font-size: 40px;
+	height: 40px;
+	width: 40px;
+}
+
+@media (max-width: 1000px) {
+	.ogsmi-form-grid {
+		grid-template-columns: repeat(2, minmax(180px, 1fr));
+	}
+
+	.ogsmi-sections {
+		grid-template-columns: 1fr;
+	}
+}
+
+@media (max-width: 640px) {
+	.ogsmi-heading,
+	.ogsmi-report-header {
+		align-items: stretch;
+		flex-direction: column;
+		gap: 8px;
+	}
+
+	.ogsmi-brand,
+	.ogsmi-overall {
+		align-self: flex-start;
+	}
+
+	.ogsmi-form-grid,
+	.ogsmi-summary-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.ogsmi-check-heading {
+		grid-template-columns: auto 1fr;
+	}
+
+	.ogsmi-check-value {
+		grid-column: 2;
+		text-align: start;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.ogsmi-progress-track span {
+		animation-duration: 4s;
+	}
+}
