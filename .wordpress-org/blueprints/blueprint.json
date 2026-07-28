@@ -1,0 +1,30 @@
+{
+  "$schema": "https://playground.wordpress.net/blueprint-schema.json",
+  "meta": {
+    "title": "1Gbits Site Move Inspector",
+    "author": "1gbitsofficial",
+    "description": "Try a read-only WordPress hosting migration preflight in a temporary browser."
+  },
+  "landingPage": "/wp-admin/tools.php?page=1gbits-site-move-inspector",
+  "login": true,
+  "preferredVersions": {
+    "php": "8.3",
+    "wp": "latest"
+  },
+  "features": {
+    "networking": true
+  },
+  "steps": [
+    {
+      "step": "installPlugin",
+      "pluginData": {
+        "resource": "url",
+        "url": "https://github.com/1gbitsofficial/site-move-inspector/releases/download/v1.0.0/1gbits-site-move-inspector-1.0.0.zip"
+      },
+      "options": {
+        "activate": true,
+        "targetFolderName": "1gbits-site-move-inspector"
+      }
+    }
+  ]
+}
