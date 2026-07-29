@@ -334,7 +334,7 @@ final class OGSMI_Redactor_Privacy_Test extends TestCase {
 	private function base_report() {
 		return array(
 			'schema_version'  => '1.0',
-			'plugin_version'  => '1.0.0',
+			'plugin_version'  => '1.0.1',
 			'generated_at'    => '2026-07-27T00:00:00+00:00',
 			'scope'           => 'site',
 			'partial'         => false,

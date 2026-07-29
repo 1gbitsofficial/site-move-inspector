@@ -3,7 +3,7 @@ Contributors: 1gbits
 Tags: migration, site health, hosting, diagnostics, server
 Requires at least: 6.2
 Tested up to: 7.0
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 Requires PHP: 7.4
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -46,7 +46,7 @@ Exports are rebuilt from an allowlist. They mask individual file paths and table
 
 == Installation ==
 
-1. Upload the plugin folder to `/wp-content/plugins/`, or install the ZIP through **Plugins > Add Plugin**.
+1. Install the ZIP through **Plugins > Add Plugin**, or place the extracted plugin folder in the plugins directory configured by WordPress.
 2. Activate **1Gbits Site Move Inspector**.
 3. Open **Tools > Site Move Inspector**. On multisite, use **Network Admin > Settings > Site Move Inspector**.
 4. Optionally enter destination details, then select **Start inspection**.
@@ -64,7 +64,7 @@ No. The filesystem scan reads metadata such as file type and size. Symbolic link
 
 = Is any information sent to 1Gbits? =
 
-No. Version 1.0.0 has no 1Gbits API integration or telemetry.
+No. Version 1.0.1 has no 1Gbits API integration or telemetry.
 
 = Why is my report marked incomplete? =
 
@@ -86,6 +86,12 @@ On a single site, an authenticated administrator with `manage_options` can run i
 4. Review admin-only software inventory, then download a privacy-safe TXT or JSON report.
 
 == Changelog ==
+
+= 1.0.1 =
+
+* Updated filesystem discovery to use WordPress directory APIs and the main plugin file.
+* Updated drop-in discovery to use the WordPress plugin inventory API.
+* Added support and regression coverage for relocated uploads, registered theme roots, and subdirectory installs.
 
 = 1.0.0 =
 

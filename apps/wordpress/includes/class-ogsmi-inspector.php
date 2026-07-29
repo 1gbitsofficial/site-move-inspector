@@ -128,11 +128,9 @@ final class OGSMI_Inspector {
 
 		$paths       = $report['inventory']['software']['paths'] ?? array();
 		$path_labels = array(
-			'content'    => __( 'content', '1gbits-site-move-inspector' ),
-			'plugins'    => __( 'plugins', '1gbits-site-move-inspector' ),
-			'mu_plugins' => __( 'must-use plugins', '1gbits-site-move-inspector' ),
-			'themes'     => __( 'themes', '1gbits-site-move-inspector' ),
-			'uploads'    => __( 'uploads', '1gbits-site-move-inspector' ),
+			'plugins' => __( 'plugins', '1gbits-site-move-inspector' ),
+			'themes'  => __( 'themes', '1gbits-site-move-inspector' ),
+			'uploads' => __( 'uploads', '1gbits-site-move-inspector' ),
 		);
 		foreach ( $path_labels as $path_id => $path_label ) {
 			$key = $path_id . '_within_root';
@@ -263,9 +261,7 @@ final class OGSMI_Inspector {
 	private function inspect_software( array &$report ) {
 		global $required_php_version, $required_mysql_version, $wp_version;
 
-		if ( ! function_exists( 'get_plugins' ) ) {
-			require_once ABSPATH . 'wp-admin/includes/plugin.php';
-		}
+		OGSMI_Locations::load_plugin_functions();
 
 		$core_php = OGSMI_Utils::sanitize_version( $required_php_version ?? '7.4' );
 		if ( '' === $core_php ) {
@@ -725,9 +721,10 @@ final class OGSMI_Inspector {
 			)
 		);
 
-		$paths       = $report['inventory']['software']['paths'];
-		$custom_path = ! $paths['content_default'] || ! $paths['uploads_default'];
-		$outside     = ! $paths['content_within_root'] || ! $paths['uploads_within_root'];
+		$paths   = $report['inventory']['software']['paths'];
+		$outside = ! $paths['plugins_within_root']
+			|| ! $paths['themes_within_root']
+			|| ! $paths['uploads_within_root'];
 
 		OGSMI_Report_Builder::add_check(
 			$report,
@@ -735,20 +732,18 @@ final class OGSMI_Inspector {
 			__( 'Site configuration', '1gbits-site-move-inspector' ),
 			array(
 				'id'             => 'custom_paths',
-				'status'         => $custom_path
+				'status'         => $outside
 					? OGSMI_Report_Builder::STATUS_WARNING
 					: OGSMI_Report_Builder::STATUS_PASS,
-				'label'          => __( 'Content and uploads paths', '1gbits-site-move-inspector' ),
-				'value'          => $custom_path
-					? __( 'Customized', '1gbits-site-move-inspector' )
-					: __( 'Default layout', '1gbits-site-move-inspector' ),
+				'label'          => __( 'WordPress directory locations', '1gbits-site-move-inspector' ),
+				'value'          => $outside
+					? __( 'External paths detected', '1gbits-site-move-inspector' )
+					: __( 'Inside scan root', '1gbits-site-move-inspector' ),
 				'message'        => $outside
-					? __( 'At least one content path is outside the WordPress root and is excluded from the file scan.', '1gbits-site-move-inspector' )
-					: ( $custom_path
-						? __( 'A non-default path layout was detected inside the WordPress root.', '1gbits-site-move-inspector' )
-						: __( 'The standard WordPress path layout is in use.', '1gbits-site-move-inspector' ) ),
-				'recommendation' => $custom_path
-					? __( 'Make sure the destination preserves custom path constants and directory mappings.', '1gbits-site-move-inspector' )
+					? __( 'At least one WordPress-managed directory is outside the scan root and is excluded from file totals.', '1gbits-site-move-inspector' )
+					: __( 'The plugin, theme, and uploads directories are contained within the scan root.', '1gbits-site-move-inspector' ),
+				'recommendation' => $outside
+					? __( 'Make sure the destination preserves the configured directory mappings.', '1gbits-site-move-inspector' )
 					: '',
 			)
 		);
@@ -1221,8 +1216,9 @@ final class OGSMI_Inspector {
 	 * @param int   $site_bytes Scanned file bytes.
 	 */
 	private function inspect_disk_space( array &$report, $site_bytes ) {
+		$root = OGSMI_Locations::wordpress_root();
 		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- Some hosts warn instead of returning false.
-		$free = @disk_free_space( ABSPATH );
+		$free = @disk_free_space( $root );
 		$free = false === $free ? 0 : max( 0, (int) $free );
 
 		$report['inventory']['files']['source_free_bytes'] = $free;
@@ -1321,39 +1317,22 @@ final class OGSMI_Inspector {
 	 * @return array
 	 */
 	private function inspect_path_layout() {
-		$root = realpath( ABSPATH );
-		$root = false === $root ? OGSMI_Utils::normalize_path( ABSPATH ) : OGSMI_Utils::normalize_path( $root );
+		$locations      = OGSMI_Locations::filesystem_snapshot();
+		$root           = $locations['root'];
+		$themes         = $locations['theme_roots'];
+		$themes_in_root = ! empty( $themes );
 
-		$content = realpath( WP_CONTENT_DIR );
-		$content = false === $content ? OGSMI_Utils::normalize_path( WP_CONTENT_DIR ) : OGSMI_Utils::normalize_path( $content );
-
-		$plugins = realpath( WP_PLUGIN_DIR );
-		$plugins = false === $plugins ? OGSMI_Utils::normalize_path( WP_PLUGIN_DIR ) : OGSMI_Utils::normalize_path( $plugins );
-
-		$mu_plugin_dir = defined( 'WPMU_PLUGIN_DIR' ) ? WPMU_PLUGIN_DIR : WP_CONTENT_DIR . '/mu-plugins';
-		$mu_plugins    = realpath( $mu_plugin_dir );
-		$mu_plugins    = false === $mu_plugins ? OGSMI_Utils::normalize_path( $mu_plugin_dir ) : OGSMI_Utils::normalize_path( $mu_plugins );
-
-		$theme_dir = get_theme_root();
-		$themes    = realpath( $theme_dir );
-		$themes    = false === $themes ? OGSMI_Utils::normalize_path( $theme_dir ) : OGSMI_Utils::normalize_path( $themes );
-
-		$uploads      = wp_get_upload_dir();
-		$uploads_dir  = empty( $uploads['basedir'] ) ? '' : $uploads['basedir'];
-		$uploads_real = '' === $uploads_dir ? false : realpath( $uploads_dir );
-		$uploads_path = false === $uploads_real ? OGSMI_Utils::normalize_path( $uploads_dir ) : OGSMI_Utils::normalize_path( $uploads_real );
-
-		$default_content = OGSMI_Utils::normalize_path( $root . '/wp-content' );
-		$default_uploads = OGSMI_Utils::normalize_path( $default_content . '/uploads' );
+		foreach ( $themes as $theme_root ) {
+			if ( ! OGSMI_Utils::path_is_within( $theme_root, $root ) ) {
+				$themes_in_root = false;
+				break;
+			}
+		}
 
 		return array(
-			'content_default'        => $content === $default_content,
-			'uploads_default'        => '' !== $uploads_path && $uploads_path === $default_uploads,
-			'content_within_root'    => OGSMI_Utils::path_is_within( $content, $root ),
-			'plugins_within_root'    => OGSMI_Utils::path_is_within( $plugins, $root ),
-			'mu_plugins_within_root' => OGSMI_Utils::path_is_within( $mu_plugins, $root ),
-			'themes_within_root'     => OGSMI_Utils::path_is_within( $themes, $root ),
-			'uploads_within_root'    => '' !== $uploads_path && OGSMI_Utils::path_is_within( $uploads_path, $root ),
+			'plugins_within_root' => OGSMI_Utils::path_is_within( $locations['plugins'], $root ),
+			'themes_within_root'  => $themes_in_root,
+			'uploads_within_root' => OGSMI_Utils::path_is_within( $locations['uploads'], $root ),
 		);
 	}
 
@@ -1363,7 +1342,10 @@ final class OGSMI_Inspector {
 	 * @return string[]
 	 */
 	private function detect_dropins() {
-		$dropins = array(
+		OGSMI_Locations::load_plugin_functions();
+
+		$known_dropins = get_dropins();
+		$targets       = array(
 			'advanced-cache.php',
 			'db.php',
 			'object-cache.php',
@@ -1371,8 +1353,8 @@ final class OGSMI_Inspector {
 		);
 
 		$found = array();
-		foreach ( $dropins as $dropin ) {
-			if ( is_file( WP_CONTENT_DIR . '/' . $dropin ) ) {
+		foreach ( $targets as $dropin ) {
+			if ( isset( $known_dropins[ $dropin ] ) ) {
 				$found[] = $dropin;
 			}
 		}

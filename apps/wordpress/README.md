@@ -6,7 +6,7 @@ Maintained by [1Gbits](https://1gbits.com/).
 
 ## Live demo
 
-[Try Site Move Inspector in WordPress Playground](https://playground.wordpress.net/?blueprint-url=https%3A%2F%2Fraw.githubusercontent.com%2F1gbitsofficial%2Fsite-move-inspector%2Fmain%2Fapps%2Fwordpress%2F.wordpress-org%2Fblueprints%2Fblueprint.json). Playground creates a disposable WordPress site in your browser, installs the exact production ZIP from the `v1.0.0` release, and opens the plugin's Tools screen.
+[Try Site Move Inspector in WordPress Playground](https://playground.wordpress.net/?blueprint-url=https%3A%2F%2Fraw.githubusercontent.com%2F1gbitsofficial%2Fsite-move-inspector%2Fmain%2Fapps%2Fwordpress%2F.wordpress-org%2Fblueprints%2Fblueprint.json). Playground creates a disposable WordPress site in your browser, installs the exact production ZIP from the `v1.0.1` release, and opens the plugin's Tools screen.
 
 ## Product boundaries
 

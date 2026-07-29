@@ -29,6 +29,12 @@ final class OGSMI_Utils_Test extends TestCase {
 		$this->assertSame( '', OGSMI_Utils::relative_path( dirname( $root ) . '/secret.php', $root ) );
 	}
 
+	public function test_filesystem_root_is_preserved_for_bounded_comparisons() {
+		$this->assertSame( '/', OGSMI_Utils::normalize_path( '/' ) );
+		$this->assertTrue( OGSMI_Utils::path_is_within( '/var/www/index.php', '/' ) );
+		$this->assertSame( 'var/www/index.php', OGSMI_Utils::relative_path( '/var/www/index.php', '/' ) );
+	}
+
 	public function test_version_sanitizer() {
 		$this->assertSame( '8.3.1', OGSMI_Utils::sanitize_version( '8.3.1' ) );
 		$this->assertSame( '', OGSMI_Utils::sanitize_version( '8.3<script>' ) );

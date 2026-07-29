@@ -94,13 +94,13 @@ final class OGSMI_Admin_Page {
 
 		wp_enqueue_style(
 			'ogsmi-admin',
-			OGSMI_URL . 'assets/admin.css',
+			OGSMI_PLUGIN_URL . 'assets/admin.css',
 			array(),
 			OGSMI_VERSION
 		);
 		wp_enqueue_script(
 			'ogsmi-admin',
-			OGSMI_URL . 'assets/admin.js',
+			OGSMI_PLUGIN_URL . 'assets/admin.js',
 			array(),
 			OGSMI_VERSION,
 			true

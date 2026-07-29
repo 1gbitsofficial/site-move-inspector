@@ -353,9 +353,8 @@ final class OGSMI_Redactor {
 				),
 			),
 			'paths'                 => array(
-				'content_default'     => ! empty( $paths['content_default'] ),
-				'uploads_default'     => ! empty( $paths['uploads_default'] ),
-				'content_within_root' => ! empty( $paths['content_within_root'] ),
+				'plugins_within_root' => ! empty( $paths['plugins_within_root'] ),
+				'themes_within_root'  => ! empty( $paths['themes_within_root'] ),
 				'uploads_within_root' => ! empty( $paths['uploads_within_root'] ),
 			),
 			'dropins'               => self::string_list( $software['dropins'] ?? array(), 10, $site_identifiers ),

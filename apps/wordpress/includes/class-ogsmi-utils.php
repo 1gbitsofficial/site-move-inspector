@@ -91,6 +91,10 @@ final class OGSMI_Utils {
 			? wp_normalize_path( (string) $path )
 			: str_replace( '\\', '/', (string) $path );
 
+		if ( '/' === $path || 1 === preg_match( '/^[A-Za-z]:\/$/', $path ) ) {
+			return $path;
+		}
+
 		return rtrim( $path, '/' );
 	}
 
@@ -114,7 +118,9 @@ final class OGSMI_Utils {
 			$root = strtolower( $root );
 		}
 
-		return $path === $root || 0 === strpos( $path, $root . '/' );
+		$root_prefix = '/' === $root ? '/' : rtrim( $root, '/' ) . '/';
+
+		return $path === $root || 0 === strpos( $path, $root_prefix );
 	}
 
 	/**
