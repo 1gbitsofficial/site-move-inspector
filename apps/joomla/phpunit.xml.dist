@@ -6,7 +6,7 @@
 	failOnWarning="true"
 >
 	<testsuites>
-		<testsuite name="1Gbits Site Move Inspector for Joomla">
+		<testsuite name="Site Move Inspector for Joomla">
 			<directory suffix="Test.php">tests/Unit</directory>
 		</testsuite>
 	</testsuites>

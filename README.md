@@ -5,7 +5,7 @@ A cross-platform, read-only migration preflight toolkit maintained by [1Gbits](h
 ## Applications
 
 - [WordPress](apps/wordpress/README.md) — production-ready plugin, currently awaiting WordPress.org review.
-- [Joomla](apps/joomla/README.md) — installable administrator component for Joomla 5.4 and 6.1, in release-candidate testing.
+- [Joomla](apps/joomla/README.md) — stable administrator component for Joomla 5.4 and 6.1. [Download the latest Joomla release](https://github.com/1gbitsofficial/site-move-inspector/releases/tag/joomla-v1.0.1).
 
 ## Live WordPress demo
 

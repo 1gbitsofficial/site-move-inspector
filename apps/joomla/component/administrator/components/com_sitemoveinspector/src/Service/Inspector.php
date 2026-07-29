@@ -22,7 +22,7 @@ use Throwable;
  */
 final class Inspector
 {
-	public const VERSION = '1.0.0';
+	public const VERSION = '1.0.1';
 	private const EXTENSION_LIMIT = 1000;
 
 	public function __construct(

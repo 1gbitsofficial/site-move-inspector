@@ -3,6 +3,15 @@
 	<changelog>
 		<element>com_sitemoveinspector</element>
 		<type>component</type>
+		<version>1.0.1</version>
+		<change>
+			<item>Aligned the installed extension name with Joomla Extensions Directory naming rules.</item>
+			<item>Kept 1Gbits identified as the developer and maintainer rather than as part of the extension name.</item>
+		</change>
+	</changelog>
+	<changelog>
+		<element>com_sitemoveinspector</element>
+		<type>component</type>
 		<version>1.0.0</version>
 		<addition>
 			<item>Read-only Joomla migration-preflight checks and optional destination comparison.</item>

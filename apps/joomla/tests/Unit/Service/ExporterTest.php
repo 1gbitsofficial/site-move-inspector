@@ -29,7 +29,7 @@ final class ExporterTest extends TestCase
     public function testJsonAndTextAreInMemoryPrivacySafeExports(): void
     {
         $report = ReportBuilder::create();
-        $report['extension_version'] = '1.0.0';
+        $report['extension_version'] = '1.0.1';
         $report['inventory']['software'] = [
             'joomla_version'   => '5.3.1',
             'php_version'      => '8.3.2',
@@ -76,6 +76,9 @@ final class ExporterTest extends TestCase
         $text = Exporter::toText($report);
 
         self::assertSame('high_risk', $decoded['summary']['overall']);
+        self::assertStringStartsWith("Site Move Inspector for Joomla\r\n", $text);
+        self::assertStringContainsString('Extension: 1.0.1', $text);
+        self::assertStringNotContainsString('1Gbits Site Move Inspector', $text);
         self::assertStringContainsString('SAFE INVENTORY', $text);
         self::assertStringContainsString('Extensions: 1', $text);
 

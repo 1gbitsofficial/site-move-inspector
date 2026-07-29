@@ -47,7 +47,7 @@ final class Exporter
         $report = Redactor::forExport($report);
         $summary = $report['summary'];
         $lines = [
-            '1Gbits Site Move Inspector for Joomla',
+            'Site Move Inspector for Joomla',
             '=======================================',
             'Schema: ' . $report['schema_version'],
             'Extension: ' . $report['extension_version'],

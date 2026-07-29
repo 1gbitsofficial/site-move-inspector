@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <updates>
 	<update>
-		<name>1Gbits Site Move Inspector</name>
+		<name>Site Move Inspector</name>
 		<description>Read-only migration preflight for Joomla.</description>
 		<element>com_sitemoveinspector</element>
 		<type>component</type>
 		<client>administrator</client>
-		<version>1.0.0</version>
+		<version>1.0.1</version>
 
 		<downloads>
-			<downloadurl type="full" format="zip">https://github.com/1gbitsofficial/site-move-inspector/releases/download/joomla-v1.0.0/com_sitemoveinspector-1.0.0.zip</downloadurl>
+			<downloadurl type="full" format="zip">https://github.com/1gbitsofficial/site-move-inspector/releases/download/joomla-v1.0.1/com_sitemoveinspector-1.0.1.zip</downloadurl>
 		</downloads>
-		<sha256>5d4cb456d79722f70ee408a44d734cd8db215e5834e7ed91cf392f97c62e7602</sha256>
+		<sha256>8c756e599e898bdb5b9d6a5155c6a498201201a7a2b1aada2dee232ebeac0f6e</sha256>
 
 		<targetplatform name="joomla" version="(?:5\.4|6\.1)(?:\.|$)"/>
 		<php_minimum>8.1.0</php_minimum>
@@ -20,7 +20,7 @@
 		</tags>
 		<maintainer>1Gbits</maintainer>
 		<maintainerurl>https://1gbits.com/</maintainerurl>
-		<infourl title="1Gbits Site Move Inspector">https://github.com/1gbitsofficial/site-move-inspector</infourl>
+		<infourl title="Site Move Inspector">https://github.com/1gbitsofficial/site-move-inspector</infourl>
 		<changelogurl>https://raw.githubusercontent.com/1gbitsofficial/site-move-inspector/main/apps/joomla/updates/changelog.xml</changelogurl>
 	</update>
 </updates>

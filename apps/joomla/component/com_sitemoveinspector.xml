@@ -7,7 +7,7 @@
 	<authorUrl>https://1gbits.com/</authorUrl>
 	<copyright>(C) 2026 1Gbits. All rights reserved.</copyright>
 	<license>GNU General Public License version 2 or later</license>
-	<version>1.0.0</version>
+	<version>1.0.1</version>
 	<description>COM_SITEMOVEINSPECTOR_XML_DESCRIPTION</description>
 
 	<namespace path="src">OneGbits\Component\SiteMoveInspector</namespace>
@@ -62,7 +62,7 @@
 		<server
 			type="extension"
 			priority="1"
-			name="1Gbits Site Move Inspector"
+			name="Site Move Inspector"
 		>https://raw.githubusercontent.com/1gbitsofficial/site-move-inspector/main/apps/joomla/updates/site-move-inspector.xml</server>
 	</updateservers>
 

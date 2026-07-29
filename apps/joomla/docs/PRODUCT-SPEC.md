@@ -1,4 +1,6 @@
-# 1Gbits Site Move Inspector for Joomla 1.0
+# Site Move Inspector for Joomla 1.0
+
+Maintained by [1Gbits](https://1gbits.com/).
 
 ## Product promise
 
