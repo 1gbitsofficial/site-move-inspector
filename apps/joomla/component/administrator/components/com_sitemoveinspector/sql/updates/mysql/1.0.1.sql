@@ -1,0 +1,1 @@
+-- No database changes are required for Site Move Inspector 1.0.1.

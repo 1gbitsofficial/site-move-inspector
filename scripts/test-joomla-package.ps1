@@ -1,7 +1,7 @@
 param(
 	[string] $SourcePath = '',
 	[string] $ZipPath = '',
-	[string] $Version = '1.0.0',
+	[string] $Version = '1.0.1',
 	[string] $PhpExecutable = 'php'
 )
 
@@ -148,6 +148,9 @@ function Assert-Manifest {
 	if ($null -eq $nameNode -or [string]::IsNullOrWhiteSpace($nameNode.InnerText)) {
 		throw "$DisplayName is missing the extension name."
 	}
+	if ($nameNode.InnerText.Trim() -cne 'COM_SITEMOVEINSPECTOR') {
+		throw "$DisplayName must use the COM_SITEMOVEINSPECTOR install-name language key."
+	}
 	if ($null -eq $versionNode -or $versionNode.InnerText.Trim() -ne $Version) {
 		throw "$DisplayName version does not match $Version."
 	}
@@ -172,6 +175,34 @@ function Assert-Manifest {
 			) {
 				throw "$DisplayName contains an invalid or non-HTTPS update server."
 			}
+		}
+	}
+}
+
+function Assert-JedDisplayName {
+	param(
+		[Parameter(Mandatory = $true)]
+		[string] $SourcePath
+	)
+
+	$languagePath = Join-Path $SourcePath 'administrator/components/com_sitemoveinspector/language/en-GB/com_sitemoveinspector.sys.ini'
+	if (-not (Test-Path -LiteralPath $languagePath -PathType Leaf)) {
+		throw "Missing English installation language file: $languagePath"
+	}
+
+	$values = @{}
+	$text = [System.IO.File]::ReadAllText($languagePath)
+	$matches = [regex]::Matches(
+		$text,
+		'(?m)^\s*(COM_SITEMOVEINSPECTOR(?:_MENU)?)="([^"\r\n]*)"\s*$'
+	)
+	foreach ($match in $matches) {
+		$values[$match.Groups[1].Value] = $match.Groups[2].Value
+	}
+
+	foreach ($key in @('COM_SITEMOVEINSPECTOR', 'COM_SITEMOVEINSPECTOR_MENU')) {
+		if (-not $values.ContainsKey($key) -or $values[$key] -cne 'Site Move Inspector') {
+			throw "$languagePath must define $key as 'Site Move Inspector' for JED name consistency."
 		}
 	}
 }
@@ -219,11 +250,13 @@ function Assert-UpdateFeed {
 
 	$update = $updates[0]
 	$expectedValues = @{
+		'name'        = 'Site Move Inspector'
 		'element'     = $Component
 		'type'        = 'component'
 		'client'      = 'administrator'
 		'version'     = $ReleaseVersion
 		'php_minimum' = '8.1.0'
+		'maintainer'  = '1Gbits'
 	}
 
 	foreach ($entry in $expectedValues.GetEnumerator()) {
@@ -315,23 +348,45 @@ function Assert-Changelog {
 	}
 
 	$entries = @($root.SelectNodes("./*[local-name()='changelog']"))
-	if ($entries.Count -ne 1) {
-		throw "$DisplayName must contain exactly one <changelog> entry."
+	if ($entries.Count -lt 1) {
+		throw "$DisplayName must contain at least one <changelog> entry."
 	}
 
-	$entry = $entries[0]
-	foreach ($expected in @(
-		@('element', $Component),
-		@('type', 'component'),
-		@('version', $ReleaseVersion)
-	)) {
-		$value = Get-RequiredXmlText `
-			-Parent $entry `
-			-XPath "./*[local-name()='$($expected[0])']" `
-			-Label "$DisplayName $($expected[0])"
-		if ($value -cne $expected[1]) {
-			throw "$DisplayName $($expected[0]) must be '$($expected[1])', found '$value'."
+	$versions = [System.Collections.Generic.HashSet[string]]::new(
+		[System.StringComparer]::Ordinal
+	)
+	foreach ($entry in $entries) {
+		foreach ($expected in @(
+			@('element', $Component),
+			@('type', 'component')
+		)) {
+			$value = Get-RequiredXmlText `
+				-Parent $entry `
+				-XPath "./*[local-name()='$($expected[0])']" `
+				-Label "$DisplayName $($expected[0])"
+			if ($value -cne $expected[1]) {
+				throw "$DisplayName $($expected[0]) must be '$($expected[1])', found '$value'."
+			}
 		}
+
+		$version = Get-RequiredXmlText `
+			-Parent $entry `
+			-XPath "./*[local-name()='version']" `
+			-Label "$DisplayName version"
+		if ($version -notmatch '^[0-9]+\.[0-9]+\.[0-9]+(?:[-+][0-9A-Za-z.-]+)?$') {
+			throw "$DisplayName contains an invalid changelog version: $version"
+		}
+		if (-not $versions.Add($version)) {
+			throw "$DisplayName contains a duplicate changelog version: $version"
+		}
+	}
+
+	$latestVersion = Get-RequiredXmlText `
+		-Parent $entries[0] `
+		-XPath "./*[local-name()='version']" `
+		-Label "$DisplayName latest version"
+	if ($latestVersion -cne $ReleaseVersion) {
+		throw "$DisplayName first changelog version must be '$ReleaseVersion', found '$latestVersion'."
 	}
 }
 
@@ -373,6 +428,19 @@ function Assert-NoForbiddenPaths {
 	}
 }
 
+function Test-DevelopmentOnlyPath {
+	param(
+		[Parameter(Mandatory = $true)]
+		[string] $RelativePath
+	)
+
+	$path = $RelativePath.Replace('\', '/').TrimStart('/')
+	return (
+		$path -match '(^|/)(tests?|docs?|node_modules|\.github|\.git|\.idea|\.vscode)(/|$)' -or
+		$path -match '(^|/)(composer\.(json|lock)|package(-lock)?\.json|phpunit\.xml(\.dist)?|phpcs\.xml(\.dist)?|\.editorconfig)$'
+	)
+}
+
 function Invoke-PhpLint {
 	param(
 		[Parameter(Mandatory = $true)]
@@ -382,6 +450,24 @@ function Invoke-PhpLint {
 	$output = & $PhpExecutable '-l' $Path 2>&1
 	if ($LASTEXITCODE -ne 0) {
 		throw "PHP syntax check failed for ${Path}: $($output -join [Environment]::NewLine)"
+	}
+}
+
+function Get-StreamSha256 {
+	param(
+		[Parameter(Mandatory = $true)]
+		[System.IO.Stream] $Stream
+	)
+
+	$sha256 = [System.Security.Cryptography.SHA256]::Create()
+	try {
+		return -join (
+			$sha256.ComputeHash($Stream) |
+				ForEach-Object { $_.ToString('x2') }
+		)
+	}
+	finally {
+		$sha256.Dispose()
 	}
 }
 
@@ -437,6 +523,7 @@ Assert-NoForbiddenPaths -Names $sourceRelativeNames
 $sourceManifestText = [System.IO.File]::ReadAllText($manifestPath)
 $sourceManifest = Read-SafeXml -Text $sourceManifestText -DisplayName $manifestPath
 Assert-Manifest -Document $sourceManifest -DisplayName $manifestPath
+Assert-JedDisplayName -SourcePath $sourceRoot
 $declaredPaths = Get-ManifestRelativePaths -Document $sourceManifest
 if ($declaredPaths.Count -eq 0) {
 	throw "The Joomla manifest does not declare any installable files."
@@ -519,6 +606,28 @@ if (-not [string]::IsNullOrWhiteSpace($ZipPath)) {
 
 		Assert-NoForbiddenPaths -Names $entryNames -Archive
 
+		$expectedArchiveNames = [System.Collections.Generic.HashSet[string]]::new(
+			[System.StringComparer]::OrdinalIgnoreCase
+		)
+		foreach ($sourceFile in $sourceItems | Where-Object { -not $_.PSIsContainer }) {
+			$relativePath = $sourceFile.FullName.Substring($sourceRoot.Length).TrimStart('\', '/').Replace('\', '/')
+			if (-not (Test-DevelopmentOnlyPath -RelativePath $relativePath)) {
+				[void] $expectedArchiveNames.Add($relativePath)
+			}
+		}
+		if (-not $expectedArchiveNames.Contains('LICENSE.txt')) {
+			$repositoryLicense = Join-Path $repoRoot 'LICENSE.txt'
+			if (-not (Test-Path -LiteralPath $repositoryLicense -PathType Leaf)) {
+				throw "Missing repository license: $repositoryLicense"
+			}
+			[void] $expectedArchiveNames.Add('LICENSE.txt')
+		}
+		foreach ($expectedName in $expectedArchiveNames) {
+			if (-not $normalizedNames.Contains($expectedName)) {
+				throw "Release ZIP is missing a releasable source file: $expectedName"
+			}
+		}
+
 		$manifestEntries = @($zipArchive.Entries | Where-Object {
 			$_.FullName.Replace('\', '/') -ceq $manifestName
 		})
@@ -589,6 +698,39 @@ if (-not [string]::IsNullOrWhiteSpace($ZipPath)) {
 			}
 			if (-not $isDeclared) {
 				throw "Release ZIP contains a file not declared by the manifest: $name"
+			}
+		}
+
+		foreach ($entry in $zipArchive.Entries | Where-Object { $_.Name }) {
+			$name = $entry.FullName.Replace('\', '/')
+			$relativeNativePath = $name.Replace('/', [System.IO.Path]::DirectorySeparatorChar)
+			$componentSourcePath = Join-Path $sourceRoot $relativeNativePath
+			$sourcePath = if (Test-Path -LiteralPath $componentSourcePath -PathType Leaf) {
+				$componentSourcePath
+			}
+			elseif ($allowedMetadata -contains $name) {
+				Join-Path $repoRoot $relativeNativePath
+			}
+			else {
+				$componentSourcePath
+			}
+
+			if (-not (Test-Path -LiteralPath $sourcePath -PathType Leaf)) {
+				throw "Release ZIP entry has no matching source file: $name"
+			}
+
+			$entryStream = $entry.Open()
+			try {
+				$archiveFileHash = Get-StreamSha256 -Stream $entryStream
+			}
+			finally {
+				$entryStream.Dispose()
+			}
+			$sourceFileHash = (
+				Get-FileHash -LiteralPath $sourcePath -Algorithm SHA256
+			).Hash.ToLowerInvariant()
+			if ($archiveFileHash -cne $sourceFileHash) {
+				throw "Release ZIP entry differs from its source file: $name"
 			}
 		}
 
