@@ -1,5 +1,5 @@
 param(
-	[string] $Version = '1.0.0'
+	[string] $Version = '1.0.1'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -35,6 +35,9 @@ $readmeSource = Get-Content -Raw -LiteralPath $readmeFile
 
 if ($mainSource -notmatch "(?m)^\s*\*\s+Version:\s+$([regex]::Escape($Version))\s*$") {
 	throw "Plugin header version does not match $Version."
+}
+if ($mainSource -notmatch "(?m)^define\(\s*'OGSMI_VERSION',\s*'$([regex]::Escape($Version))'\s*\);\s*$") {
+	throw "OGSMI_VERSION does not match $Version."
 }
 if ($readmeSource -notmatch "(?m)^Stable tag:\s+$([regex]::Escape($Version))\s*$") {
 	throw "readme.txt Stable tag does not match $Version."

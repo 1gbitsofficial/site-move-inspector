@@ -11,7 +11,7 @@ report.
 
 - Manual scans only.
 - Local processing with no telemetry or requests to 1Gbits.
-- Batched metadata-only filesystem scan contained within `ABSPATH`.
+- Batched metadata-only filesystem scan contained within the root returned by WordPress' `get_home_path()` API.
 - Environment, PHP extension, plugin/theme requirement, database-size, cron,
   URL/HTTPS, custom-path, drop-in, symlink, and disk-capacity checks.
 - Optional self-request tests to the site's own home and REST URLs.

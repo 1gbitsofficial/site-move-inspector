@@ -27,42 +27,46 @@ final class OGSMI_File_Scanner {
 	 * Create a new scan cursor.
 	 *
 	 * @return array
+	 * @throws RuntimeException When the WordPress root cannot be resolved safely.
 	 */
 	public function create_state() {
-		$root = realpath( ABSPATH );
-		$root = false === $root ? OGSMI_Utils::normalize_path( ABSPATH ) : OGSMI_Utils::normalize_path( $root );
+		$locations = OGSMI_Locations::filesystem_snapshot();
+		$root      = $locations['root'];
+		if ( '' === $root || ! is_dir( $root ) ) {
+			throw new RuntimeException( 'The WordPress scan root could not be resolved safely.' );
+		}
 
 		$marker_paths = array(
-			'content'    => WP_CONTENT_DIR,
-			'plugins'    => WP_PLUGIN_DIR,
-			'mu_plugins' => defined( 'WPMU_PLUGIN_DIR' ) ? WPMU_PLUGIN_DIR : WP_CONTENT_DIR . '/mu-plugins',
-			'themes'     => get_theme_root(),
-			'uploads'    => '',
+			'core'    => array( $locations['core'] ),
+			'plugins' => array( $locations['plugins'] ),
+			'themes'  => $locations['theme_roots'],
+			'uploads' => array( $locations['uploads'] ),
 		);
-
-		$uploads = wp_get_upload_dir();
-		if ( empty( $uploads['error'] ) && ! empty( $uploads['basedir'] ) ) {
-			$marker_paths['uploads'] = $uploads['basedir'];
-		}
 
 		$markers         = array();
 		$partial_reasons = array();
 		$excluded_count  = 0;
 
-		foreach ( $marker_paths as $marker_id => $marker_path ) {
-			$marker                = $this->resolve_marker( $marker_path, $root );
-			$markers[ $marker_id ] = $marker['relative'];
+		foreach ( $marker_paths as $marker_id => $category_paths ) {
+			$markers[ $marker_id ] = array();
 
-			if ( ! $marker['excluded'] ) {
-				continue;
+			foreach ( array_unique( $category_paths ) as $marker_path ) {
+				$marker = $this->resolve_marker( $marker_path, $root );
+				if ( ! in_array( $marker['relative'], $markers[ $marker_id ], true ) ) {
+					$markers[ $marker_id ][] = $marker['relative'];
+				}
+
+				if ( ! $marker['excluded'] ) {
+					continue;
+				}
+
+				++$excluded_count;
+				$partial_reasons[] = sprintf(
+					/* translators: %s: type of WordPress directory, such as plugins or themes. */
+					__( 'The %s directory is outside the WordPress root or could not be resolved, so it was not scanned.', '1gbits-site-move-inspector' ),
+					$this->marker_label( $marker_id )
+				);
 			}
-
-			++$excluded_count;
-			$partial_reasons[] = sprintf(
-				/* translators: %s: type of WordPress directory, such as plugins or themes. */
-				__( 'The %s directory is outside the WordPress root or could not be resolved, so it was not scanned.', '1gbits-site-move-inspector' ),
-				$this->marker_label( $marker_id )
-			);
 		}
 
 		return array(
@@ -440,7 +444,7 @@ final class OGSMI_File_Scanner {
 	}
 
 	/**
-	 * Record a path that resolves beyond ABSPATH.
+	 * Record a path that resolves beyond the WordPress root.
 	 *
 	 * @param array  $state Scanner state, by reference.
 	 * @param string $path Absolute path.
@@ -499,37 +503,31 @@ final class OGSMI_File_Scanner {
 	 */
 	private function empty_categories() {
 		return array(
-			'uploads'       => array(
+			'uploads' => array(
 				'id'         => 'uploads',
 				'label'      => __( 'Uploads', '1gbits-site-move-inspector' ),
 				'file_count' => 0,
 				'bytes'      => 0,
 			),
-			'plugins'       => array(
+			'plugins' => array(
 				'id'         => 'plugins',
 				'label'      => __( 'Plugins', '1gbits-site-move-inspector' ),
 				'file_count' => 0,
 				'bytes'      => 0,
 			),
-			'themes'        => array(
+			'themes'  => array(
 				'id'         => 'themes',
 				'label'      => __( 'Themes', '1gbits-site-move-inspector' ),
 				'file_count' => 0,
 				'bytes'      => 0,
 			),
-			'other_content' => array(
-				'id'         => 'other_content',
-				'label'      => __( 'Other wp-content files', '1gbits-site-move-inspector' ),
-				'file_count' => 0,
-				'bytes'      => 0,
-			),
-			'core'          => array(
+			'core'    => array(
 				'id'         => 'core',
 				'label'      => __( 'WordPress core', '1gbits-site-move-inspector' ),
 				'file_count' => 0,
 				'bytes'      => 0,
 			),
-			'other'         => array(
+			'other'   => array(
 				'id'         => 'other',
 				'label'      => __( 'Other files', '1gbits-site-move-inspector' ),
 				'file_count' => 0,
@@ -549,29 +547,53 @@ final class OGSMI_File_Scanner {
 		$relative = ltrim( OGSMI_Utils::normalize_path( $relative ), '/' );
 
 		foreach ( array( 'uploads', 'plugins', 'themes' ) as $category ) {
-			if ( $this->relative_starts_with( $relative, $markers[ $category ] ?? '' ) ) {
-				return $category;
+			foreach ( (array) ( $markers[ $category ] ?? array() ) as $marker ) {
+				if ( $this->relative_starts_with( $relative, $marker ) ) {
+					return $category;
+				}
 			}
 		}
 
-		if ( $this->relative_starts_with( $relative, $markers['mu_plugins'] ?? '' ) ) {
-			return 'plugins';
-		}
-
-		if ( $this->relative_starts_with( $relative, $markers['content'] ?? '' ) ) {
-			return 'other_content';
-		}
-
-		if (
-			$this->relative_starts_with( $relative, 'wp-admin' )
-			|| $this->relative_starts_with( $relative, 'wp-includes' )
-			|| 1 === preg_match( '/^wp-[^\/]+\.php$/', $relative )
-			|| in_array( $relative, array( 'index.php', 'xmlrpc.php', 'license.txt', 'readme.html' ), true )
-		) {
-			return 'core';
+		foreach ( (array) ( $markers['core'] ?? array( '' ) ) as $core_marker ) {
+			$core_relative = $this->path_relative_to_marker( $relative, $core_marker );
+			if (
+				false !== $core_relative
+				&& (
+					$this->relative_starts_with( $core_relative, 'wp-admin' )
+					|| $this->relative_starts_with( $core_relative, 'wp-includes' )
+					|| 1 === preg_match( '/^wp-[^\/]+\.php$/', $core_relative )
+					|| in_array( $core_relative, array( 'index.php', 'xmlrpc.php', 'license.txt', 'readme.html' ), true )
+				)
+			) {
+				return 'core';
+			}
 		}
 
 		return 'other';
+	}
+
+	/**
+	 * Return a path relative to a marker, or false when it is outside.
+	 *
+	 * An empty marker represents the scan root, preserving the default layout.
+	 *
+	 * @param string $path Relative scan path.
+	 * @param string $marker Relative directory marker.
+	 * @return string|false
+	 */
+	private function path_relative_to_marker( $path, $marker ) {
+		$path   = trim( OGSMI_Utils::normalize_path( $path ), '/' );
+		$marker = trim( OGSMI_Utils::normalize_path( $marker ), '/' );
+
+		if ( '' === $marker ) {
+			return $path;
+		}
+
+		if ( ! $this->relative_starts_with( $path, $marker ) ) {
+			return false;
+		}
+
+		return $path === $marker ? '' : ltrim( substr( $path, strlen( $marker ) ), '/' );
 	}
 
 	/**
@@ -641,11 +663,10 @@ final class OGSMI_File_Scanner {
 	 */
 	private function marker_label( $marker_id ) {
 		$labels = array(
-			'content'    => __( 'content', '1gbits-site-move-inspector' ),
-			'plugins'    => __( 'plugins', '1gbits-site-move-inspector' ),
-			'mu_plugins' => __( 'must-use plugins', '1gbits-site-move-inspector' ),
-			'themes'     => __( 'themes', '1gbits-site-move-inspector' ),
-			'uploads'    => __( 'uploads', '1gbits-site-move-inspector' ),
+			'core'    => __( 'WordPress core', '1gbits-site-move-inspector' ),
+			'plugins' => __( 'plugins', '1gbits-site-move-inspector' ),
+			'themes'  => __( 'themes', '1gbits-site-move-inspector' ),
+			'uploads' => __( 'uploads', '1gbits-site-move-inspector' ),
 		);
 
 		return $labels[ $marker_id ] ?? __( 'custom', '1gbits-site-move-inspector' );

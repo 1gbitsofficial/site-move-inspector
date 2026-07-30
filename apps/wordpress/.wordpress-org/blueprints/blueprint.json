@@ -19,7 +19,7 @@
       "step": "installPlugin",
       "pluginData": {
         "resource": "url",
-        "url": "https://github.com/1gbitsofficial/site-move-inspector/releases/download/v1.0.0/1gbits-site-move-inspector-1.0.0.zip"
+        "url": "https://github.com/1gbitsofficial/site-move-inspector/releases/download/v1.0.1/1gbits-site-move-inspector-1.0.1.zip"
       },
       "options": {
         "activate": true,
